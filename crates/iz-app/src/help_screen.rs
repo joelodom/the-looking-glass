@@ -41,7 +41,7 @@ pub fn controls(s: &Settings) -> Vec<(String, String)> {
         c("Home", "look straight down, facing north".into()),
         c("Backspace", "back to the previous frame".into()),
         c("Shift+Backspace", "redo (forward again after Back)".into()),
-        c("R", "regenerate this frame (discards frames made from it)".into()),
+        c("R", "regenerate this frame (asks first if it has branches; those are discarded)".into()),
         c("X", "cancel the running generation".into()),
         c("F", "toggle fullscreen".into()),
         c("Esc", "this screen".into()),

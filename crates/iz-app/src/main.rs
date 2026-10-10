@@ -4,6 +4,7 @@
 //! [`iz_types::Engine`]; [`make_engine`] is the single place it is built.
 
 mod app;
+mod confirm;
 #[cfg(test)]
 mod dev_engine;
 mod help_screen;

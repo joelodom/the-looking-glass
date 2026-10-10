@@ -2,6 +2,7 @@
 //! Every frame it drains engine events, reads keys, draws the current screen
 //! and then applies whatever the screens and keys asked for ([`Intent`]).
 
+use crate::confirm;
 use crate::help_screen::{self, HelpState};
 use crate::main_screen::{self, MainState};
 use crate::open_screen;
@@ -31,6 +32,10 @@ pub enum Intent {
     OpenHelp,
     CloseHelp,
     SaveSettings(Settings),
+    /// The user confirmed regenerating a frame that has branches.
+    RegenerateConfirmed,
+    /// Close the regenerate confirmation without doing anything.
+    CloseConfirm,
     GoToOpenScreen,
     /// Show a message in the status bar (errors detected by the UI itself).
     Notify {
@@ -43,7 +48,7 @@ pub enum Intent {
 impl Intent {
     /// Keys that still work while a generation runs (DESIGN.md: ESC and X).
     pub fn allowed_while_busy(&self) -> bool {
-        matches!(self, Intent::Cancel | Intent::OpenHelp | Intent::CloseHelp)
+        matches!(self, Intent::Cancel | Intent::OpenHelp | Intent::CloseHelp | Intent::CloseConfirm)
     }
 }
 
@@ -72,6 +77,8 @@ pub struct App {
     textures: TextureCache,
     main: MainState,
     help: HelpState,
+    /// Open when R was pressed on a frame with branches: the branch count.
+    confirm_regenerate: Option<usize>,
     window_fitted: bool,
 }
 
@@ -89,6 +96,7 @@ impl App {
             textures: TextureCache::default(),
             main: MainState::default(),
             help: HelpState::default(),
+            confirm_regenerate: None,
             window_fitted: false,
         }
     }
@@ -150,12 +158,19 @@ impl App {
         let mut out = Vec::new();
         for (key, mods) in presses {
             if key == Key::Escape {
-                if !self.help.open && !egui::Popup::is_any_open(ctx) {
+                // The modals close themselves on Escape.
+                if !self.help.open && self.confirm_regenerate.is_none() && !egui::Popup::is_any_open(ctx) {
                     out.push(Intent::OpenHelp);
                 }
                 continue;
             }
             if ctx.egui_wants_keyboard_input() {
+                continue;
+            }
+            if self.confirm_regenerate.is_some() {
+                if mods.is_none() {
+                    out.extend(confirm::map_key(key));
+                }
                 continue;
             }
             if self.help.open {
@@ -180,6 +195,18 @@ impl App {
 
     fn apply(&mut self, ctx: &Context, intent: Intent) {
         match intent {
+            Intent::Submit(confirm::ACTION) if confirm::needs_confirmation(self.view.as_ref()) => {
+                let branches = self.view.as_ref().map_or(0, |v| v.children.len());
+                self.confirm_regenerate = Some(branches);
+            }
+            Intent::RegenerateConfirmed => {
+                self.confirm_regenerate = None;
+                println!("[ui] submit {:?} (confirmed)", confirm::ACTION);
+                if let Err(e) = self.engine.submit(confirm::ACTION, self.settings.clone()) {
+                    self.push_message(e.to_string(), true);
+                }
+            }
+            Intent::CloseConfirm => self.confirm_regenerate = None,
             Intent::Submit(action) => {
                 println!("[ui] submit {action:?}");
                 if let Err(e) = self.engine.submit(action, self.settings.clone()) {
@@ -303,6 +330,10 @@ impl eframe::App for App {
                 )),
             });
 
+        if let Some(branches) = self.confirm_regenerate {
+            intents.extend(confirm::show(&ctx, branches));
+        }
+
         if self.help.open {
             let can_leave_world = self.screen == Screen::Main && busy.is_none();
             intents.extend(help_screen::show(
@@ -331,6 +362,32 @@ mod tests {
         assert!(!Intent::ToggleFullscreen.allowed_while_busy());
         assert!(!Intent::Submit(Action::ZoomOut).allowed_while_busy());
         assert!(!Intent::Submit(Action::Back).allowed_while_busy());
+    }
+
+    #[test]
+    fn regenerate_asks_only_when_there_are_branches() {
+        assert!(!confirm::needs_confirmation(None));
+        let mut view = WorldView {
+            world_id: "w".into(),
+            world_title: "w".into(),
+            current: 1,
+            image_path: std::path::PathBuf::from("x.png"),
+            image_version: 0,
+            camera: iz_types::Camera::default(),
+            title: String::new(),
+            breadcrumb: String::new(),
+            children: vec![],
+            can_back: false,
+            can_redo: false,
+            depth: 0,
+        };
+        assert!(!confirm::needs_confirmation(Some(&view)));
+        view.children.push(iz_types::ChildOutline {
+            node: 2,
+            transition: iz_types::Transition::ZoomOut { factor: 4.0 },
+            title: String::new(),
+        });
+        assert!(confirm::needs_confirmation(Some(&view)));
     }
 
     #[test]
@@ -502,11 +559,30 @@ mod headless {
         h.key(Key::Escape, Modifiers::NONE);
         assert!(!h.app.help.open);
 
-        // R regenerates: same node, new image version, children discarded.
+        // R on a frame with branches asks first: Escape keeps everything.
         h.key(Key::Backspace, Modifiers::NONE);
         let (node, version) = (h.view().current, h.view().image_version);
-        assert!(!h.view().children.is_empty());
+        let branches = h.view().children.len();
+        assert!(branches > 0);
         h.key(Key::R, Modifiers::NONE);
+        assert_eq!(h.app.confirm_regenerate, Some(branches));
+        assert!(h.app.engine.busy().is_none(), "nothing runs until confirmed");
+        h.key(Key::W, Modifiers::NONE);
+        assert!(h.app.engine.busy().is_none(), "other keys are swallowed by the modal");
+        h.step(vec![]);
+        h.key(Key::Escape, Modifiers::NONE);
+        assert_eq!(h.app.confirm_regenerate, None);
+        assert!(!h.app.help.open, "Escape closed the modal, not opened help");
+        assert_eq!(h.view().image_version, version);
+        assert_eq!(h.view().children.len(), branches);
+
+        // R then Enter regenerates: same node, new image version, children discarded.
+        h.key(Key::R, Modifiers::NONE);
+        assert!(h.app.confirm_regenerate.is_some());
+        h.step(vec![]);
+        h.key(Key::Enter, Modifiers::NONE);
+        assert_eq!(h.app.confirm_regenerate, None);
+        assert!(h.app.engine.busy().is_some());
         h.wait_idle();
         assert_eq!(h.view().current, node);
         assert_eq!(h.view().image_version, version + 1);
@@ -514,6 +590,17 @@ mod headless {
             h.view().children.iter().all(|c| c.node == root || c.node == zoomed_out),
             "only back-links survive"
         );
+
+        // A frame with no branches regenerates without asking.
+        h.key(Key::ArrowUp, Modifiers::NONE);
+        h.wait_idle();
+        assert!(h.view().children.is_empty());
+        let leaf_version = h.view().image_version;
+        h.key(Key::R, Modifiers::NONE);
+        assert_eq!(h.app.confirm_regenerate, None);
+        assert!(h.app.engine.busy().is_some());
+        h.wait_idle();
+        assert_eq!(h.view().image_version, leaf_version + 1);
 
         // Back to the open screen; Lucky is busy there too and X cancels it.
         h.intent(Intent::GoToOpenScreen);

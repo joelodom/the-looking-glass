@@ -98,7 +98,7 @@ anything. Full prompts and replies also go to stdout.
 | Home              | Look straight down, facing north            |
 | Backspace         | Back to the previous frame                  |
 | Shift+Backspace   | Forward again                               |
-| R                 | Regenerate this frame (discards its branch) |
+| R                 | Regenerate this frame (asks first if it has branches, then discards them) |
 | X                 | Cancel the call in progress                 |
 | F                 | Fullscreen                                  |
 | Esc               | Help and settings                           |

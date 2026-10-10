@@ -71,7 +71,8 @@ there and writes the render prompt; OpenAI's image API paints it.
 - Previously drawn rectangles are shown as faint outlines on their parent
   frame; clicking inside one re-enters that branch.
 - Regenerate replaces the current node's image (new describe + paint) and
-  discards its descendants.
+  discards its descendants. The UI asks for confirmation first when the node
+  has children; a leaf regenerates straight away.
 - Determinism comes from the cache: a committed frame is permanent. The image
   API has no seed.
 - Worlds persist under the app's data dir (`~/Library/Application Support/
