@@ -86,7 +86,7 @@ there and writes the render prompt; OpenAI's image API paints it.
   stdout with image data replaced by file paths.
 - ESC: help + settings (image quality, image model, Claude model, frame size,
   zoom-out factor). Settings apply to frames generated from then on.
-- Keys: drag = zoom in; Left/Right = heading ±45°; Up/Down = tilt ∓30°;
+- Keys: drag = zoom in; Left/Right = heading ∓45°; Up = tilt toward the horizon, Down = toward straight down, 30° steps;
   W/S = forward/backward one meter; Z = zoom out; Home = straight down, north;
   Backspace = back; Shift+Backspace = redo; R = regenerate; X = cancel;
   F = fullscreen; ESC = help/settings.

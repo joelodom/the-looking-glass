@@ -37,6 +37,7 @@ impl CallContext {
 
 /// What kind of describe call this is.
 #[derive(Debug, Clone, PartialEq)]
+#[allow(clippy::large_enum_variant)] // Rewrite carries the spec; one per call, never stored in bulk
 pub enum DescribeKind {
     /// Analyse the starting photo: guess place, scale, time, season. No
     /// render prompt is needed (the pipeline ignores it) but the camera,
