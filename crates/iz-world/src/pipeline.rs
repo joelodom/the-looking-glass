@@ -356,10 +356,10 @@ fn current_node(st: &State) -> Result<&Node, EngineError> {
 fn look_target(camera: &Camera, action: &Action) -> (f32, f32) {
     match action {
         Action::Tilt { delta_deg } => {
-            ((camera.tilt_deg + delta_deg).clamp(0.0, 90.0), wrap_heading(camera.heading_deg))
+            ((camera.tilt_deg + delta_deg).clamp(0.0, 180.0), wrap_heading(camera.heading_deg))
         }
         Action::Rotate { delta_deg } => {
-            (camera.tilt_deg.clamp(0.0, 90.0), wrap_heading(camera.heading_deg + delta_deg))
+            (camera.tilt_deg.clamp(0.0, 180.0), wrap_heading(camera.heading_deg + delta_deg))
         }
         _ => (0.0, 0.0),
     }
@@ -1247,7 +1247,8 @@ mod tests {
     #[test]
     fn look_targets_clamp_and_wrap() {
         let cam = Camera { tilt_deg: 75.0, heading_deg: 330.0, ..Camera::default() };
-        assert_eq!(look_target(&cam, &Action::Tilt { delta_deg: 30.0 }), (90.0, 330.0));
+        assert_eq!(look_target(&cam, &Action::Tilt { delta_deg: 30.0 }), (105.0, 330.0));
+        assert_eq!(look_target(&cam, &Action::Tilt { delta_deg: 150.0 }), (180.0, 330.0));
         assert_eq!(look_target(&cam, &Action::Tilt { delta_deg: -90.0 }), (0.0, 330.0));
         assert_eq!(look_target(&cam, &Action::Rotate { delta_deg: 45.0 }), (75.0, 15.0));
         assert_eq!(look_target(&cam, &Action::Home), (0.0, 0.0));

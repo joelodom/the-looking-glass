@@ -28,9 +28,10 @@ pub struct MainState {
 
 /// Map a key press to an intent. Escape is handled by the app.
 ///
-/// Up tilts toward the horizon (tilt increases, 90 = horizon) and Down
-/// toward straight down (tilt decreases, 0 = straight down). Left turns
-/// counterclockwise (heading decreases), Right clockwise.
+/// The arrows work like an aircraft stick: Up pushes the nose down (tilt
+/// decreases toward 0 = straight down) and Down pulls it up (tilt increases
+/// through 90 = horizon to 180 = straight up). Left turns counterclockwise
+/// (heading decreases), Right clockwise.
 /// Keys with Cmd/Ctrl/Alt are left alone so system shortcuts keep working.
 pub fn map_key(key: Key, mods: Modifiers, s: &Settings) -> Option<Intent> {
     if mods.command || mods.ctrl || mods.alt || mods.mac_cmd {
@@ -45,10 +46,10 @@ pub fn map_key(key: Key, mods: Modifiers, s: &Settings) -> Option<Intent> {
             delta_deg: s.heading_step_deg,
         }),
         Key::ArrowUp => submit(Action::Tilt {
-            delta_deg: s.tilt_step_deg,
+            delta_deg: -s.tilt_step_deg,
         }),
         Key::ArrowDown => submit(Action::Tilt {
-            delta_deg: -s.tilt_step_deg,
+            delta_deg: s.tilt_step_deg,
         }),
         Key::W => submit(Action::Forward),
         Key::Z => submit(Action::ZoomOut),
@@ -320,11 +321,11 @@ mod tests {
         );
         assert_eq!(
             submit(map_key(Key::ArrowUp, none, &s)),
-            Action::Tilt { delta_deg: 30.0 }
+            Action::Tilt { delta_deg: -30.0 }
         );
         assert_eq!(
             submit(map_key(Key::ArrowDown, none, &s)),
-            Action::Tilt { delta_deg: -30.0 }
+            Action::Tilt { delta_deg: 30.0 }
         );
         assert_eq!(submit(map_key(Key::W, none, &s)), Action::Forward);
         assert_eq!(map_key(Key::S, none, &s), None);
@@ -351,7 +352,7 @@ mod tests {
         );
         assert_eq!(
             submit(map_key(Key::ArrowDown, Modifiers::NONE, &s)),
-            Action::Tilt { delta_deg: -5.0 }
+            Action::Tilt { delta_deg: 5.0 }
         );
     }
 

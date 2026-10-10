@@ -535,8 +535,12 @@ mod headless {
         h.key(Key::Backspace, Modifiers::SHIFT);
         assert_eq!(h.view().current, zoomed_out);
 
-        // Up tilts toward the horizon.
+        // Down pulls the nose up, toward the horizon; Up from straight down
+        // is a no-op (already at the clamp).
         h.key(Key::ArrowUp, Modifiers::NONE);
+        h.step(vec![]);
+        assert!(h.app.engine.busy().is_none());
+        h.key(Key::ArrowDown, Modifiers::NONE);
         h.wait_idle();
         assert_eq!(h.view().camera.tilt_deg, 30.0);
 
@@ -592,7 +596,7 @@ mod headless {
         );
 
         // A frame with no branches regenerates without asking.
-        h.key(Key::ArrowUp, Modifiers::NONE);
+        h.key(Key::ArrowDown, Modifiers::NONE);
         h.wait_idle();
         assert!(h.view().children.is_empty());
         let leaf_version = h.view().image_version;

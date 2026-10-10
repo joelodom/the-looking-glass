@@ -309,7 +309,7 @@ impl DevEngine {
 
     fn look(&self, st: &mut State, tilt: f32, heading: f32, settings: Settings) -> Result<(), EngineError> {
         let cam = st.world().ok_or(EngineError::NoWorld)?.cur().camera.clone();
-        let (tilt, heading) = (tilt.clamp(0.0, 90.0), wrap_heading(heading));
+        let (tilt, heading) = (tilt.clamp(0.0, 180.0), wrap_heading(heading));
         if (tilt - cam.tilt_deg).abs() < 0.01 && (heading - wrap_heading(cam.heading_deg)).abs() < 0.01 {
             self.send(EngineEvent::Info("Already looking that way".into()));
             return Ok(());
@@ -624,7 +624,7 @@ fn produce(st: &mut State, job: &Job, s: &Settings) -> Result<Vec<EngineEvent>, 
                     let mut img = cur_img.clone();
                     imageops::tint(
                         &mut img,
-                        [(heading_deg / 360.0 * 255.0) as u8, 90, (tilt_deg / 90.0 * 255.0) as u8],
+                        [(heading_deg / 360.0 * 255.0) as u8, 90, (tilt_deg / 180.0 * 255.0) as u8],
                         0.3,
                     );
                     cam.tilt_deg = *tilt_deg;

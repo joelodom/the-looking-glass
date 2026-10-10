@@ -93,7 +93,7 @@ anything. Full prompts and replies also go to stdout.
 | Click an outline  | Re-enter a frame you zoomed into before     |
 | Z                 | Zoom out                                    |
 | Left / Right      | Turn the camera                             |
-| Up / Down         | Tilt the camera                             |
+| Up / Down         | Tilt like an aircraft stick: Up noses down, Down pulls up to the sky |
 | W                 | Step forward, through a wall or door if one fills the view |
 | Home              | Look straight down, facing north            |
 | Backspace         | Back to the previous frame                  |

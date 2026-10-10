@@ -24,7 +24,7 @@ there and writes the render prompt; OpenAI's image API paints it.
   observable universe the view resolves into something imaginary (a surprise
   the user asked not to be told; see the Claude prompt guidance) and the
   recursion continues upward.
-- Camera: tilt (0 = straight down, 90 = horizon), heading (0 = north), and
+- Camera: tilt (0 = straight down, 90 = horizon, 180 = straight up), heading (0 = north), and
   "step forward". If a wall, door or similar barrier fills most of the frame,
   the step goes through it and the next frame shows the other side (the next
   room, the outside). Otherwise it is a short step closer, about a meter.
@@ -88,7 +88,7 @@ there and writes the render prompt; OpenAI's image API paints it.
   stdout with image data replaced by file paths.
 - ESC: help + settings (image quality, image model, Claude model, frame size,
   zoom-out factor). Settings apply to frames generated from then on.
-- Keys: drag = zoom in; Left/Right = heading ∓45°; Up = tilt toward the horizon, Down = toward straight down, 30° steps;
+- Keys: drag = zoom in; Left/Right = heading ∓45°; Up/Down = tilt like an aircraft stick (Up pushes the nose down, Down pulls it up), 30° steps;
   W = step forward; Z = zoom out; Home = straight down, north;
   Backspace = back; Shift+Backspace = redo; R = regenerate; X = cancel;
   F = fullscreen; ESC = help/settings.

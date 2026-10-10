@@ -28,7 +28,7 @@ The person changes the view from the current frame in one of four ways:
 
 - frame_width_m: width of the visible frame at the subject, in meters. The core scale quantity; any magnitude, from beyond 1e27 m down to below 1e-11 m.
 - distance_m: camera to subject, in meters.
-- tilt_deg: 0 = looking straight down, 90 = looking at the horizon (above 90 looks up into the sky).
+- tilt_deg: 0 = looking straight down, 90 = looking at the horizon, 180 = looking straight up (above 90 the view takes in the sky, ceiling or canopy; at 180 it is the zenith).
 - heading_deg: compass direction of the view, 0 = north, 90 = east, 180 = south, 270 = west. In a straight-down view it is the compass direction at the top of the frame.
 - regime: one word for the kind of view (vocabulary below).
 - scale_label: short human-readable size, e.g. "about 40 km across", "2 mm across", "12 µm across", "about 100,000 light-years across". Always fill it in.
@@ -621,7 +621,9 @@ fn tilt_words(tilt: f32) -> &'static str {
         t if t < 65.0 => "obliquely down",
         t if t < 85.0 => "slightly down",
         t if t <= 95.0 => "level, at the horizon",
-        _ => "upward, into the sky",
+        t if t < 125.0 => "slightly up, sky above the horizon",
+        t if t < 170.0 => "steeply up, into the sky",
+        _ => "straight up, at the zenith",
     }
 }
 
@@ -639,7 +641,7 @@ fn tilt_change_words(delta: f32) -> String {
     if delta.abs() < 0.5 {
         "not at all".into()
     } else if delta > 0.0 {
-        format!("up by {delta:.0} deg (toward the horizon)")
+        format!("up by {delta:.0} deg (toward the horizon and the sky)")
     } else {
         format!("down by {:.0} deg (toward straight down)", -delta)
     }

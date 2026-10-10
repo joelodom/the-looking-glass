@@ -32,7 +32,7 @@ pub fn controls(s: &Settings) -> Vec<(String, String)> {
         c(
             "↑ / ↓",
             format!(
-                "tilt up toward the horizon / down toward straight down (tilt +/−{:.0}°; 0° = straight down, 90° = horizon)",
+                "like an aircraft stick: ↑ pushes the nose down, ↓ pulls it up ({:.0}° steps; 0° = straight down, 90° = horizon, 180° = straight up)",
                 s.tilt_step_deg
             ),
         ),
@@ -268,6 +268,6 @@ mod tests {
             assert!(keys.contains(&k), "missing {k}");
         }
         let tilt = &list.iter().find(|(k, _)| k == "↑ / ↓").unwrap().1;
-        assert!(tilt.contains("up toward the horizon"), "{tilt}");
+        assert!(tilt.contains("aircraft stick"), "{tilt}");
     }
 }

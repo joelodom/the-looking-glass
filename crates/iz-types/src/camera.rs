@@ -11,7 +11,7 @@ pub struct Camera {
     pub frame_width_m: f64,
     /// Distance from the camera to the subject, in meters.
     pub distance_m: f64,
-    /// 0 = looking straight down, 90 = looking at the horizon.
+    /// 0 = looking straight down, 90 = looking at the horizon, 180 = straight up.
     pub tilt_deg: f32,
     /// Compass heading of the view direction, 0 = north, 90 = east.
     pub heading_deg: f32,
