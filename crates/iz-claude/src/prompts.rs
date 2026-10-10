@@ -22,7 +22,7 @@ The person changes the view from the current frame in one of four ways:
 - zoom_in {rect}: they dragged a rectangle on the current frame (x, y, w, h normalized 0..1, origin top-left, same aspect as the frame). The new frame shows exactly that region filling the frame, 1/w times closer. The view direction stays the same; the camera moves closer, the lens narrows, or at small scales the microscope's magnification rises.
 - zoom_out {factor}: the new frame is factor times wider, and the current frame sits unchanged in its exact center, covering 1/factor of the width and height. The painter fills the border around it, which must continue the center seamlessly outward.
 - look {tilt_deg, heading_deg}: the camera stays where it is and turns to this absolute orientation.
-- forward {meters}: the camera moves exactly that many meters along its view direction (negative = backward). It passes through anything in the way (doors, walls, floors, hedges, the side of a bus) and ends up on the other side: describe what is there. One meter is for walking around at ground level. At altitude a meter changes nothing visible, so keep the frame essentially the same and say so in notes; zoom is how one moves fast at altitude.
+- forward: the camera takes a step forward along its view direction. Look at what fills the current frame. If a wall, door, gate, window, fence, hedge, curtain, the side of a vehicle, or any similar barrier fills most of the frame, the step goes through it and the new frame shows what is on the other side: the next room, the hallway, the outside, the inside, whatever belongs there given the building and the place in the dossier. Otherwise the camera moves a short distance closer along the view direction, about a meter at human scale, far enough that the change is clearly visible. Forward is for walking around at ground level. At altitude it changes nothing useful, so keep the frame essentially the same and say so in notes; zoom is how one moves fast at altitude.
 
 # Camera
 
@@ -146,8 +146,7 @@ fn transition_word(t: &Transition) -> &'static str {
         Transition::ZoomIn { .. } => "zoom in",
         Transition::ZoomOut { .. } => "zoom out",
         Transition::Look { .. } => "look",
-        Transition::Forward { meters } if *meters < 0.0 => "back",
-        Transition::Forward { .. } => "forward",
+        Transition::Forward => "forward",
     }
 }
 
@@ -373,11 +372,9 @@ fn explain_transition(t: &Transition, current: Option<&Camera>) -> String {
             }
             s
         }
-        Transition::Forward { meters } => {
-            let dir = if *meters >= 0.0 { "forward" } else { "backward" };
-            let mut s = format!(
-                "The camera moves exactly {:.2} m {dir} along its view direction, passing through anything in the way.",
-                meters.abs()
+        Transition::Forward => {
+            let mut s = String::from(
+                "The camera takes a step forward along its view direction. If a wall, door, gate, window, fence, hedge or similar barrier fills most of the current frame, the step passes through it and the new frame shows what is on the other side (the next room, the outside, whatever is there); otherwise the camera moves about a meter closer, far enough that the change is clearly visible.",
             );
             if let Some(cam) = current {
                 let _ = write!(
@@ -407,7 +404,7 @@ fn painter_inputs(req: &DescribeRequest) -> String {
         Transition::ZoomOut { factor } => format!(
             "One image to edit: the current frame reduced to the center 1/{factor:.1} of a transparent canvas, with a mask that lets the painter touch only the transparent border. Write render_prompt as an outpainting instruction: keep the center exactly, paint the surroundings so it continues seamlessly outward."
         ),
-        Transition::Look { .. } | Transition::Forward { .. } => {
+        Transition::Look { .. } | Transition::Forward => {
             let mut s = String::from(
                 "No canvas. First attached image: the current frame (the view before this move), as a reference.",
             );
@@ -720,8 +717,8 @@ mod tests {
             "0 = looking straight down",
             "90 = looking at the horizon",
             "0 = north",
-            "exactly that many meters",
-            "passes through anything",
+            "fills most of the frame",
+            "the other side",
             "atoms are drawn as alien planets",
             "observable universe",
             "world_seed",
@@ -800,11 +797,12 @@ mod tests {
     #[test]
     fn forward_and_zoom_out_prompts() {
         let p = user_prompt(
-            &req(DescribeKind::Step, Transition::Forward { meters: -1.0 }),
+            &req(DescribeKind::Step, Transition::Forward),
             Local::now(),
         );
-        assert!(p.contains("REQUEST: step (back 1 m)"));
-        assert!(p.contains("1.00 m backward"));
+        assert!(p.contains("REQUEST: step (step forward)"));
+        assert!(p.contains("takes a step forward"));
+        assert!(p.contains("passes through it"));
         assert!(p.contains("It faces east (heading 90 deg)"));
         let p = user_prompt(
             &req(DescribeKind::Step, Transition::ZoomOut { factor: 4.0 }),
@@ -892,8 +890,8 @@ mod tests {
             "describe zoom in"
         );
         assert_eq!(
-            purpose(&DescribeKind::Step, &Transition::Forward { meters: -1.0 }),
-            "describe back"
+            purpose(&DescribeKind::Step, &Transition::Forward),
+            "describe forward"
         );
         let rw = DescribeKind::Rewrite {
             refused_message: String::new(),

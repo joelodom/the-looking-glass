@@ -173,8 +173,7 @@ impl RealEngine {
                 }
                 self.discrete(st, target)
             }
-            Action::Forward => self.discrete(st, Transition::Forward { meters: settings.forward_step_m }),
-            Action::Backward => self.discrete(st, Transition::Forward { meters: -settings.forward_step_m }),
+            Action::Forward => self.discrete(st, Transition::Forward),
         }
     }
 
@@ -373,8 +372,7 @@ pub(crate) fn transition_noun(t: &Transition) -> &'static str {
         Transition::ZoomIn { .. } => "zoom in",
         Transition::ZoomOut { .. } => "zoom out",
         Transition::Look { .. } => "look",
-        Transition::Forward { meters } if *meters < 0.0 => "backward",
-        Transition::Forward { .. } => "forward",
+        Transition::Forward => "forward",
     }
 }
 
@@ -1003,7 +1001,7 @@ impl Job {
                 camera.heading_deg = *heading_deg;
                 PaintInputs::References { parent: load_parent_reference() }
             }
-            Transition::Forward { .. } => PaintInputs::References { parent: load_parent_reference() },
+            Transition::Forward => PaintInputs::References { parent: load_parent_reference() },
             Transition::Root => return Err(Fail::Error("A start frame cannot be stepped to.".into())),
         };
 

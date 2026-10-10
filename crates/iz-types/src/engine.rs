@@ -17,8 +17,8 @@ pub enum Action {
     Rotate { delta_deg: f32 },
     /// Straight down, heading north.
     Home,
+    /// A step forward; through a wall or door if one fills the frame.
     Forward,
-    Backward,
     /// History: to the parent of the current node.
     Back,
     /// History: undo the last Back.

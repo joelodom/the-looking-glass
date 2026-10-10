@@ -51,7 +51,6 @@ pub fn map_key(key: Key, mods: Modifiers, s: &Settings) -> Option<Intent> {
             delta_deg: -s.tilt_step_deg,
         }),
         Key::W => submit(Action::Forward),
-        Key::S => submit(Action::Backward),
         Key::Z => submit(Action::ZoomOut),
         Key::Home => submit(Action::Home),
         Key::Backspace if mods.shift => submit(Action::Redo),
@@ -328,7 +327,7 @@ mod tests {
             Action::Tilt { delta_deg: -30.0 }
         );
         assert_eq!(submit(map_key(Key::W, none, &s)), Action::Forward);
-        assert_eq!(submit(map_key(Key::S, none, &s)), Action::Backward);
+        assert_eq!(map_key(Key::S, none, &s), None);
         assert_eq!(submit(map_key(Key::Z, none, &s)), Action::ZoomOut);
         assert_eq!(submit(map_key(Key::Home, none, &s)), Action::Home);
         assert_eq!(submit(map_key(Key::Backspace, none, &s)), Action::Back);

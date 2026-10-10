@@ -270,7 +270,7 @@ exit 0
         let reply = r#"{"type":"result","subtype":"success","is_error":true,"result":"API Error: 429 rate_limit_error"}"#;
         let (bin_dir, world, settings) = setup("ratelimit", reply);
         std::fs::write(bin_dir.join("exit_code"), "1").unwrap();
-        let mut req = step(Transition::Forward { meters: 1.0 }, &world);
+        let mut req = step(Transition::Forward, &world);
         req.settings = settings;
         let log = Arc::new(Collect(Mutex::new(Vec::new())));
         let mut ctx = CallContext::new(log.clone());

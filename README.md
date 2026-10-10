@@ -94,7 +94,7 @@ anything. Full prompts and replies also go to stdout.
 | Z                 | Zoom out                                    |
 | Left / Right      | Turn the camera                             |
 | Up / Down         | Tilt the camera                             |
-| W / S             | Step forward / backward one meter           |
+| W                 | Step forward, through a wall or door if one fills the view |
 | Home              | Look straight down, facing north            |
 | Backspace         | Back to the previous frame                  |
 | Shift+Backspace   | Forward again                               |

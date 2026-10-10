@@ -50,7 +50,6 @@ pub struct Settings {
     pub zoom_out_factor: f32,
     pub tilt_step_deg: f32,
     pub heading_step_deg: f32,
-    pub forward_step_m: f32,
     /// Explicit path to the claude binary; None = discover.
     pub claude_bin: Option<String>,
 }
@@ -66,7 +65,6 @@ impl Default for Settings {
             zoom_out_factor: 4.0,
             tilt_step_deg: 30.0,
             heading_step_deg: 45.0,
-            forward_step_m: 1.0,
             claude_bin: None,
         }
     }

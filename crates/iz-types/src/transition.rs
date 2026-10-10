@@ -13,9 +13,10 @@ pub enum Transition {
     ZoomOut { factor: f32 },
     /// Absolute camera orientation change at the same position.
     Look { tilt_deg: f32, heading_deg: f32 },
-    /// Move along the view direction. Negative = backward. Passes through
-    /// doors and walls.
-    Forward { meters: f32 },
+    /// A step forward along the view direction. If a wall, door or similar
+    /// barrier fills most of the frame, the step passes through it and the
+    /// new frame shows the other side; otherwise about a meter closer.
+    Forward,
 }
 
 impl Transition {
@@ -36,7 +37,7 @@ impl Transition {
                 Transition::Look { tilt_deg: t1, heading_deg: h1 },
                 Transition::Look { tilt_deg: t2, heading_deg: h2 },
             ) => (t1 - t2).abs() < EPS && heading_diff(*h1, *h2).abs() < EPS,
-            (Transition::Forward { meters: a }, Transition::Forward { meters: b }) => (a - b).abs() < EPS,
+            (Transition::Forward, Transition::Forward) => true,
             _ => false,
         }
     }
@@ -50,8 +51,7 @@ impl Transition {
             Transition::Look { tilt_deg, heading_deg } => {
                 format!("look tilt {:.0}° heading {:.0}°", tilt_deg, heading_deg)
             }
-            Transition::Forward { meters } if *meters >= 0.0 => format!("forward {:.0} m", meters),
-            Transition::Forward { meters } => format!("back {:.0} m", -meters),
+            Transition::Forward => "step forward".into(),
         }
     }
 }

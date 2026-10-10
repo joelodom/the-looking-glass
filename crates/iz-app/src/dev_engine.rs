@@ -365,20 +365,7 @@ impl Engine for DevEngine {
                 self.look(&mut st, cam.tilt_deg, cam.heading_deg + delta_deg, settings)?;
             }
             Action::Home => self.look(&mut st, 0.0, 0.0, settings)?,
-            Action::Forward => self.step(
-                &mut st,
-                Transition::Forward {
-                    meters: settings.forward_step_m,
-                },
-                settings,
-            )?,
-            Action::Backward => self.step(
-                &mut st,
-                Transition::Forward {
-                    meters: -settings.forward_step_m,
-                },
-                settings,
-            )?,
+            Action::Forward => self.step(&mut st, Transition::Forward, settings)?,
             Action::Back => {
                 let w = st.world().ok_or(EngineError::NoWorld)?;
                 match w.cur().parent {
@@ -648,19 +635,10 @@ fn produce(st: &mut State, job: &Job, s: &Settings) -> Result<Vec<EngineEvent>, 
                         None,
                     )
                 }
-                Transition::Forward { meters } => {
+                Transition::Forward => {
                     let mut img = cur_img.clone();
-                    let c = if *meters >= 0.0 { [40, 200, 80] } else { [200, 80, 40] };
-                    imageops::tint(&mut img, c, 0.2);
-                    (
-                        img,
-                        format!(
-                            "{} {:.0} m",
-                            if *meters >= 0.0 { "Forward" } else { "Back" },
-                            meters.abs()
-                        ),
-                        None,
-                    )
+                    imageops::tint(&mut img, [40, 200, 80], 0.2);
+                    (img, "Step forward".to_string(), None)
                 }
                 Transition::Root => return Err("cannot step to a root".into()),
             };

@@ -25,9 +25,10 @@ there and writes the render prompt; OpenAI's image API paints it.
   the user asked not to be told; see the Claude prompt guidance) and the
   recursion continues upward.
 - Camera: tilt (0 = straight down, 90 = horizon), heading (0 = north), and
-  "move forward one meter" which is exactly one meter along the view direction
-  and passes through doors and walls. One meter is for ground level; zoom is
-  how you move quickly at altitude.
+  "step forward". If a wall, door or similar barrier fills most of the frame,
+  the step goes through it and the next frame shows the other side (the next
+  room, the outside). Otherwise it is a short step closer, about a meter.
+  Forward is for ground level; zoom is how you move quickly at altitude.
 - Realism: as realistic as the world knowledge allows. Known landmarks look
   like themselves; unknown houses look typical for the region. People are
   plausible, never real.
@@ -60,8 +61,8 @@ there and writes the render prompt; OpenAI's image API paints it.
 
 - A world is a tree of nodes (one DAG edge: see ZoomOut below). Every view
   change is a node: ZoomIn{rect}, ZoomOut{factor}, Look{tilt,heading}
-  (absolute), Forward{meters} (negative = backward). Backspace goes back to the
-  parent; a redo key goes forward again.
+  (absolute), Forward. Backspace goes back to the parent; a redo key goes
+  forward again.
 - Discrete transitions (ZoomOut, Look, Forward) are repeatable exactly, so the
   engine looks up an existing child with the same transition before
   generating. ZoomIn is reused only by clicking an existing outline.
@@ -88,7 +89,7 @@ there and writes the render prompt; OpenAI's image API paints it.
 - ESC: help + settings (image quality, image model, Claude model, frame size,
   zoom-out factor). Settings apply to frames generated from then on.
 - Keys: drag = zoom in; Left/Right = heading ∓45°; Up = tilt toward the horizon, Down = toward straight down, 30° steps;
-  W/S = forward/backward one meter; Z = zoom out; Home = straight down, north;
+  W = step forward; Z = zoom out; Home = straight down, north;
   Backspace = back; Shift+Backspace = redo; R = regenerate; X = cancel;
   F = fullscreen; ESC = help/settings.
 - Input is blocked while a generation runs, except ESC and X.

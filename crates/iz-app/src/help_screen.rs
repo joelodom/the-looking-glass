@@ -36,7 +36,7 @@ pub fn controls(s: &Settings) -> Vec<(String, String)> {
                 s.tilt_step_deg
             ),
         ),
-        c("W / S", format!("move forward / backward {} m (through doors and walls)", s.forward_step_m)),
+        c("W", "step forward; if a wall, door or similar fills the view, the step goes through it".into()),
         c("Z", format!("zoom out ×{}", s.zoom_out_factor)),
         c("Home", "look straight down, facing north".into()),
         c("Backspace", "back to the previous frame".into()),
@@ -193,15 +193,6 @@ fn settings_section(ui: &mut Ui, state: &mut HelpState, saved: &Settings) -> Vec
             );
             ui.end_row();
 
-            ui.label("Forward step");
-            ui.add(
-                DragValue::new(&mut draft.forward_step_m)
-                    .range(0.1..=100.0)
-                    .speed(0.1)
-                    .suffix(" m"),
-            );
-            ui.end_row();
-
             ui.label("claude binary");
             let mut bin = draft.claude_bin.clone().unwrap_or_default();
             let resp = ui.add(egui::TextEdit::singleline(&mut bin).hint_text("found automatically"));
@@ -264,7 +255,7 @@ mod tests {
             "Drag",
             "← / →",
             "↑ / ↓",
-            "W / S",
+            "W",
             "Z",
             "Home",
             "Backspace",
