@@ -191,13 +191,14 @@ fn mock_end_to_end() {
     assert_eq!(h.world().nodes.len(), 3);
     h.run(Action::EnterChild(zoomed));
 
-    // Tilt up to the horizon; further up is a no-op.
+    // Tilt up past the horizon to straight up (clamped at 180); further up
+    // is a no-op.
     assert_eq!(h.view().camera.tilt_deg, 60.0);
-    let ev = h.run(Action::Tilt { delta_deg: 30.0 });
+    let ev = h.run(Action::Tilt { delta_deg: 150.0 });
     assert_eq!(finished(&ev), ok(&["describe look", "paint look"]));
     let look = h.view().current;
-    assert_eq!(h.view().camera.tilt_deg, 90.0);
-    assert_eq!(h.world().nodes[&look].transition, Transition::Look { tilt_deg: 90.0, heading_deg: 0.0 });
+    assert_eq!(h.view().camera.tilt_deg, 180.0);
+    assert_eq!(h.world().nodes[&look].transition, Transition::Look { tilt_deg: 180.0, heading_deg: 0.0 });
     let ev = h.run(Action::Tilt { delta_deg: 30.0 });
     assert!(finished(&ev).is_empty());
     assert_eq!(infos(&ev), vec!["already looking that way".to_string()]);
