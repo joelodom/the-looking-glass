@@ -62,7 +62,7 @@ impl Default for Settings {
             claude_model: "claude-opus-5-5".to_string(),
             frame_width: 1536,
             frame_height: 1024,
-            zoom_out_factor: 8.0,
+            zoom_out_factor: 16.0,
             tilt_step_deg: 30.0,
             heading_step_deg: 45.0,
             claude_bin: None,
