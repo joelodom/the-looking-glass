@@ -1,0 +1,16 @@
+[package]
+name = "iz-world"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+iz-types = { workspace = true }
+image = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
+chrono = { workspace = true }
+rand = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+crossbeam-channel = { workspace = true }

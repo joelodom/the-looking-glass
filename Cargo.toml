@@ -1,0 +1,42 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/iz-types",
+    "crates/iz-claude",
+    "crates/iz-openai",
+    "crates/iz-world",
+    "crates/iz-app",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+
+[workspace.dependencies]
+iz-types = { path = "crates/iz-types" }
+iz-claude = { path = "crates/iz-claude" }
+iz-openai = { path = "crates/iz-openai" }
+iz-world = { path = "crates/iz-world" }
+
+eframe = "0.36"
+egui = "0.36"
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp"] }
+reqwest = { version = "0.13", default-features = false, features = ["blocking", "multipart", "json", "rustls", "webpki-roots"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rfd = "0.17"
+dirs = "7"
+chrono = { version = "0.4", features = ["serde", "clock"] }
+sha2 = "0.11"
+rand = "0.10"
+anyhow = "1"
+thiserror = "2"
+base64 = "0.23"
+dotenvy = "0.15"
+crossbeam-channel = "0.5"
+
+[profile.dev]
+opt-level = 1
+
+[profile.dev.package."*"]
+opt-level = 2

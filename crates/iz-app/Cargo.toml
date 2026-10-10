@@ -1,0 +1,22 @@
+[package]
+name = "iz-app"
+version.workspace = true
+edition.workspace = true
+
+[[bin]]
+name = "the-looking-glass"
+path = "src/main.rs"
+
+[dependencies]
+iz-types = { workspace = true }
+iz-claude = { workspace = true }
+iz-openai = { workspace = true }
+iz-world = { workspace = true }
+eframe = { workspace = true }
+egui = { workspace = true }
+image = { workspace = true }
+rfd = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+chrono = { workspace = true }
