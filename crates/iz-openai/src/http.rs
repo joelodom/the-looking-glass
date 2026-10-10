@@ -18,7 +18,7 @@ pub fn build_client() -> Result<Client, String> {
     Client::builder()
         .connect_timeout(CONNECT_TIMEOUT)
         .timeout(TOTAL_TIMEOUT)
-        .user_agent(concat!("infinite-zoom/", env!("CARGO_PKG_VERSION")))
+        .user_agent(concat!("the-looking-glass/", env!("CARGO_PKG_VERSION")))
         .build()
         .map_err(|e| format!("could not build the HTTP client: {e}"))
 }
